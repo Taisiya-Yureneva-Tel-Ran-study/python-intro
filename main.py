@@ -4,16 +4,15 @@ def bSearchInSortedList(lst: list[int], num: int) -> int:
     mid: int = (left + right) // 2
     found: int = -1
     while left <= right and found == -1:
-        print(left, right, mid)
         if lst[mid] == num:
             res = bSearchInSortedList(lst[left:mid], num)
-            found = mid if res == -1 else res + left
+            found = mid if res <= -1 else (res + left)
         elif lst[mid] < num:
             left = mid + 1
         else:
             right = mid - 1
         mid = (left + right) // 2
-    return found
+    return found if found != -1 else -(left + 1)
 
-numbers: list[int] = [1, 5, 15, 15, 15, 16, 17, 18, 19]
-print(bSearchInSortedList(numbers, 15))
+numbers: list[int] = [1, 5, 15, 15, 15, 17, 18, 19]
+print(bSearchInSortedList(numbers, 2))
