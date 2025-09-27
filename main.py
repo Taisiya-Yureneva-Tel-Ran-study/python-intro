@@ -3,16 +3,13 @@ def bSearchInSortedList(lst: list[int], num: int) -> int:
     right: int = len(lst) - 1
     mid: int = (left + right) // 2
     found: int = -1
-    while left <= right and found == -1:
-        if lst[mid] == num:
-            res = bSearchInSortedList(lst[left:mid], num)
-            found = mid if res <= -1 else (res + left)
-        elif lst[mid] < num:
-            left = mid + 1
-        else:
-            right = mid - 1
+    while left<right:
         mid = (left + right) // 2
-    return found if found != -1 else -(left + 1)
+        if lst[mid] >= num:
+            right = mid
+        else:
+            left = mid + 1
+    return left if lst[left] == num else -(left + 1)
 
 def maxNegativeRepr(lst: list[int]) -> int:
     numSet: set[int] = set(lst)
