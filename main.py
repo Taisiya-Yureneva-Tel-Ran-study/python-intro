@@ -14,5 +14,10 @@ def bSearchInSortedList(lst: list[int], num: int) -> int:
         mid = (left + right) // 2
     return found if found != -1 else -(left + 1)
 
-numbers: list[int] = [1, 5, 15, 15, 15, 17, 18, 19]
-print(bSearchInSortedList(numbers, 2))
+def maxNegativeRepr(lst: list[int]) -> int:
+    numSet: set[int] = set(lst)
+    maxNeg: int = -1
+    for num in lst:
+        if num < 0 and -num in numSet:
+            maxNeg = max(maxNeg, -num)
+    return maxNeg
