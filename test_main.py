@@ -1,5 +1,5 @@
 from unittest import TestCase
-from main import bSearchInSortedList, maxNegativeRepr
+from main import bSearchInSortedList, maxNegativeRepr, isSumTwo
 
 class BinarySearchTest(TestCase):
     def setUp(self):
@@ -34,3 +34,16 @@ class MaxNegativeTest(TestCase):
         self.assertEqual(maxNegativeRepr([100, 4, 1, -1, -4, -100]), 100)
         self.assertEqual(maxNegativeRepr([100, 4, 1, 1, 4, 100, -1]), 1)
         self.assertEqual(maxNegativeRepr([-1, -2, 0, 100, 200, 1, -5, 8, 2, -300, 3]), 2)
+
+class SumTwoTest(TestCase):
+    def setUp(self):
+        self.numbers: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        
+    def test_found(self):
+        self.assertEqual(isSumTwo(self.numbers, 19), True)
+        self.assertEqual(isSumTwo([1, 2, 3, 4], 4), True)
+        
+    def test_not_found(self):
+        self.assertEqual(isSumTwo([1, 2, 3, 4], 2), False)
+        self.assertEqual(isSumTwo([], 0), False)
+        self.assertEqual(isSumTwo([1, 1, 1, 1, 3], 3), False)
