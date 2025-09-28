@@ -1,8 +1,11 @@
+import bisect
+
 numbers: list[int] = []
-numbers.append(30)
-numbers.append(20)
-numbers.append(50)
-numbers.append(3)
+bisect.insort(numbers, 10)
+bisect.insort(numbers, 50)
+bisect.insort(numbers, 30)
+bisect.insort(numbers, 13)
+bisect.insort(numbers, 3)
 
 print(numbers)
 
@@ -14,3 +17,11 @@ def getNumbersRange(arr: list[int], min: int, max: int) -> list[int]:
     return res
 
 print(getNumbersRange(numbers, 10, 30))
+
+def getSortedNumbersRange(arr: list[int], min: int, max: int) -> list[int]:
+    left: int = bisect.bisect_left(arr, min)
+    right: int = bisect.bisect_right(arr, max)
+    res: list[int] = arr[left:right]
+    return res
+
+print(getSortedNumbersRange(numbers, 10, 30))
