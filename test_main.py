@@ -1,5 +1,5 @@
 from unittest import TestCase
-from main import Club, Person
+from main import Club, Person, Dictionary
 
 class ClubTest(TestCase):
     def setUp(self):
@@ -46,4 +46,34 @@ class ClubTest(TestCase):
         self.assertEqual(self.club.getPersonsByAge(20, 30), [self.prs1, self.prs2])
         # Edge case: no persons in range
         self.assertEqual(self.club.getPersonsByAge(50, 60), [])
+        
+class DictionaryTest(TestCase):
+    def setUp(self):
+        self.dict: Dictionary = Dictionary()
+        
+    def test_add_word(self):
+        self.dict.addWord("bAnAnA")
+        self.dict.addWord("apple")
+        self.dict.addWord("Angle")
+        self.dict.addWord("BEE")
+        self.assertEqual(self.dict.getWords(), ["Angle", "apple", "bAnAnA", "BEE"])
+        
+    def test_add_duplicate_word(self):
+        self.dict.addWord("apple")
+        with self.assertRaises(ValueError):
+            self.dict.addWord("ApPlE")
+            
+    def test_get_words_sorted_case_insensitive(self):
+        words = ["apple", "Banana", "delimiter", "WiSh", "BaNdIt", "wing", "band", "BaNdana"]
+        for word in words:
+            self.dict.addWord(word)
+        self.assertEqual(self.dict.getWords(), ["apple", "Banana", "band", "BaNdana", "BaNdIt", "delimiter", "wing", "WiSh"])
+        
+    def test_get_words_by_prefix_case_insensitive(self):
+        words = ["apple", "Banana", "delimiter", "WiSh", "BaNdIt", "wing", "band", "BaNdana", "banя"]
+        for word in words:
+            self.dict.addWord(word)
+        self.assertEqual(self.dict.getWordsByPrefix("baN"), ["Banana", "band", "BaNdana", "BaNdIt", "banя"])
+        self.assertEqual(self.dict.getWordsByPrefix("Wi"), ["wing", "WiSh"])
+        self.assertEqual(self.dict.getWordsByPrefix("x"), [])
         

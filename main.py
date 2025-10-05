@@ -8,6 +8,25 @@ class Person:
     age: int = field(compare=False)
     name: str = field(compare=False)
 
+class Dictionary:
+    def __init__(self):
+        self.__words = SortedSet()
+        self.__sortedWords = SortedKeyList(key=str.lower)
+        
+    def addWord(self, word: str):
+        if word.lower() in self.__words:
+            raise ValueError(f'Word "{word}" already exists')
+        self.__words.add(word.lower())
+        self.__sortedWords.add(word)
+        
+    def getWords(self) -> list[str]:
+        return list(self.__sortedWords)
+        
+    def getWordsByPrefix(self, prefix: str) -> list[str]:
+        start = prefix
+        end = prefix + chr(0x10FFFF)
+        return list(self.__sortedWords.irange(start, end))
+        
 class Club:
     def __init__(self):
         self.__sortedSet = SortedSet()
@@ -32,18 +51,3 @@ class Club:
         end = Person(inf, maxAge, '')
         return list(self.__sortedKeyList.irange(start, end))
 
-if __name__ == "__main__":
-    club = Club()
-    prs1 = Person(123, 20, 'Vasya')
-    prs2 = Person(20, 30, 'Misha')
-    prs3 = Person(33, 40, 'Shasha')
-    prs4 = Person(5, 40, 'Masha')
-    
-    club.addPerson(prs1)
-    club.addPerson(prs2)
-    club.addPerson(prs3)
-    club.addPerson(prs4)
-    
-    print(club.getPersonsSortedById())
-    print(club.getPersonsSortedByAgeAndId())
-    print(club.getPersonsByAge(20, 30))
