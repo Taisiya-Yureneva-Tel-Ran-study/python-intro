@@ -1,27 +1,49 @@
-import bisect
+from dataclasses import dataclass, field
+from sortedcontainers import SortedSet, SortedKeyList
+from math import inf
 
-numbers: list[int] = []
-bisect.insort(numbers, 10)
-bisect.insort(numbers, 50)
-bisect.insort(numbers, 30)
-bisect.insort(numbers, 13)
-bisect.insort(numbers, 3)
+@dataclass(order=True, unsafe_hash=True)
+class Person:
+    id: int
+    age: int = field(compare=False)
+    name: str = field(compare=False)
 
-print(numbers)
+class Club:
+    def __init__(self):
+        self.__sortedSet = SortedSet()
+        self.__sortedKeyList = SortedKeyList(key=lambda person: (person.age, person.id))
+        
+    def addPerson(self, person: Person):
+        if person in self.__sortedSet:
+            raise ValueError(f'Person with id {person.id} already exists')
+        self.__sortedSet.add(person)
+        self.__sortedKeyList.add(person)
+    
+    def getPersonsSortedById(self) -> list[Person]:
+        return list(self.__sortedSet)
+        
+    def getPersonsSortedByAgeAndId(self) -> list[Person]:
+        return list(self.__sortedKeyList)
+    
+    def getPersonsByAge(self, minAge:int, maxAge:int) -> list[Person]:
+        start = Person(0, minAge, '')
+        # I guess, this is the nuance, we need to use some max value for id
+        # to ensure that we get all persons with maxAge
+        end = Person(inf, maxAge, '')
+        return list(self.__sortedKeyList.irange(start, end))
 
-def getNumbersRange(arr: list[int], min: int, max: int) -> list[int]:
-    res: list[int] = []
-    for num in arr:
-        if min <= num <= max:
-            res.append(num)
-    return res
-
-print(getNumbersRange(numbers, 10, 30))
-
-def getSortedNumbersRange(arr: list[int], min: int, max: int) -> list[int]:
-    left: int = bisect.bisect_left(arr, min)
-    right: int = bisect.bisect_right(arr, max)
-    res: list[int] = arr[left:right]
-    return res
-
-print(getSortedNumbersRange(numbers, 10, 30))
+if __name__ == "__main__":
+    club = Club()
+    prs1 = Person(123, 20, 'Vasya')
+    prs2 = Person(20, 30, 'Misha')
+    prs3 = Person(33, 40, 'Shasha')
+    prs4 = Person(5, 40, 'Masha')
+    
+    club.addPerson(prs1)
+    club.addPerson(prs2)
+    club.addPerson(prs3)
+    club.addPerson(prs4)
+    
+    print(club.getPersonsSortedById())
+    print(club.getPersonsSortedByAgeAndId())
+    print(club.getPersonsByAge(20, 30))

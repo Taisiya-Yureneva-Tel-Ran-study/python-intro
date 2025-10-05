@@ -1,49 +1,49 @@
 from unittest import TestCase
-from main import bSearchInSortedList, maxNegativeRepr, isSumTwo
+from main import Club, Person
 
-class BinarySearchTest(TestCase):
+class ClubTest(TestCase):
     def setUp(self):
-        self.numbers: list[int] = [1, 2, 3, 5, 5, 5, 7, 8, 9, 10]
+        self.club: Club = Club()
+        self.prs1 = Person(123, 20, 'Vasya')
+        self.prs2 = Person(20, 30, 'Misha')
+        self.prs3 = Person(33, 40, 'Shasha')
+        self.prs4 = Person(5, 40, 'Masha')
+        self.invalid_person = Person(123, 25, 'Invalid')
         
-    def test_found_first(self):
-        self.assertEqual(bSearchInSortedList(self.numbers, 1), 0)
-         
-    def test_found_last(self):
-        self.assertEqual(bSearchInSortedList(self.numbers, 10), 9) 
-        
-    def test_found_first_av(self):
-        self.assertEqual(bSearchInSortedList(self.numbers, 5), 3) 
-        
-    def test_not_found(self):
-        self.assertEqual(bSearchInSortedList(self.numbers, 4), -4)
-        self.assertEqual(bSearchInSortedList(self.numbers, 11), -10)
-        self.assertEqual(bSearchInSortedList(self.numbers, 0), -1)
-        
-class MaxNegativeTest(TestCase):
-    def setUp(self):
-        self.numbers: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.nums: list[int] = [-1, -2, -3, -4, -5, 6, 7, 8, 9, 10]
-        
-    def test_not_found(self):
-        self.assertEqual(maxNegativeRepr(self.numbers), -1)
-        self.assertEqual(maxNegativeRepr([]), -1)
-        self.assertEqual(maxNegativeRepr(self.nums), -1)
-        
-    def found(self):
-        self.assertEqual(maxNegativeRepr([0]), 0)
-        self.assertEqual(maxNegativeRepr([100, 4, 1, -1, -4, -100]), 100)
-        self.assertEqual(maxNegativeRepr([100, 4, 1, 1, 4, 100, -1]), 1)
-        self.assertEqual(maxNegativeRepr([-1, -2, 0, 100, 200, 1, -5, 8, 2, -300, 3]), 2)
+    def test_add_person(self):
+        self.club.addPerson(self.prs1)
+        self.club.addPerson(self.prs2)
+        self.club.addPerson(self.prs3)
+        self.club.addPerson(self.prs4)
+        self.assertEqual(self.club.getPersonsSortedById(), [self.prs4, self.prs2, self.prs3, self.prs1])
+        self.assertEqual(self.club.getPersonsSortedByAgeAndId(), [self.prs1, self.prs2, self.prs4, self.prs3])
 
-class SumTwoTest(TestCase):
-    def setUp(self):
-        self.numbers: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    def test_add_duplicate_id_person(self):
+        self.club.addPerson(self.prs1)
+        with self.assertRaises(ValueError):
+            self.club.addPerson(self.invalid_person)
+            
+    def test_get_persons_sorted_by_id(self):
+        self.club.addPerson(self.prs1)
+        self.club.addPerson(self.prs2)
+        self.club.addPerson(self.prs3)
+        self.club.addPerson(self.prs4)
+        self.assertEqual(self.club.getPersonsSortedById(), [self.prs4, self.prs2, self.prs3, self.prs1])
         
-    def test_found(self):
-        self.assertEqual(isSumTwo(self.numbers, 19), True)
-        self.assertEqual(isSumTwo([1, 2, 3, 4], 4), True)
+    def test_get_persons_sorted_by_age_and_id(self):
+        self.club.addPerson(self.prs1)
+        self.club.addPerson(self.prs2)
+        self.club.addPerson(self.prs3)
+        self.club.addPerson(self.prs4)
+        self.assertEqual(self.club.getPersonsSortedByAgeAndId(), [self.prs1, self.prs2, self.prs4, self.prs3])
         
-    def test_not_found(self):
-        self.assertEqual(isSumTwo([1, 2, 3, 4], 2), False)
-        self.assertEqual(isSumTwo([], 0), False)
-        self.assertEqual(isSumTwo([1, 1, 1, 1, 3], 3), False)
+    def test_get_persons_by_age(self):
+        self.club.addPerson(self.prs1)
+        self.club.addPerson(self.prs2)
+        self.club.addPerson(self.prs3)
+        self.club.addPerson(self.prs4)
+        # Inclusive range
+        self.assertEqual(self.club.getPersonsByAge(20, 30), [self.prs1, self.prs2])
+        # Edge case: no persons in range
+        self.assertEqual(self.club.getPersonsByAge(50, 60), [])
+        
