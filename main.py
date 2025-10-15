@@ -11,7 +11,7 @@ class Entry(Generic[K, V]):
     key: K
     val: V = field(compare=False, hash=False)
     def __str__(self) -> str:
-        return f"{self.key}: {self.val}"
+        return f"'{self.key}': {self.val}"
     
 class MyDictionary(Generic[K, V]):
     def __init__(self):
@@ -84,9 +84,7 @@ class MyDictionary(Generic[K, V]):
     def update(self, key: K, value: V):
         # if key exists, updates value for the key
         # if key missing, inserts key: value entry
-        probe: Entry[K, V] = Entry(key, value)
-        self.__entries.discard(probe)
-        self.__entries.add(probe)
+        self.__setitem__(key, value)
     
     _sentinel = object()
     def pop(self, key: K, default=_sentinel)->V:
@@ -114,10 +112,24 @@ class MySortedDict(Generic[K,V]):
     def __getitem__(self, key: K) -> V :
         # see implementation of MyDict,
         # but it should be implemented with O[LogN] complexity
-        raise NotImplementedError()    
+        res = self.__getEntryByKey(key)
+        if not res:
+            raise KeyError(key)
+        return res.val
+    
+    def __getEntryByKey(self, key: K) -> Entry[K, V]:
+        probe: Entry[K, V] = Entry(key, None)
+        res = None
+        if probe in self.__entries:
+            res = self.__entries.bisect_left(probe)
+        return self.__entries[res] if res is not None else None
+        
+        
     def __setitem__(self, key: K, value: V):
-        # TODO see implementation of MyDict, O[LogN] complexity
-        raise NotImplementedError()    
+        # see implementation of MyDict, O[LogN] complexity
+        probe = Entry(key, value)
+        self.__entries.discard(probe)
+        self.__entries.add(probe)
     
     def __str__(self) :
         return  '{' + ", ".join([str(e) for e in self.__entries]) + '}'
@@ -125,16 +137,25 @@ class MySortedDict(Generic[K,V]):
     def __len__(self):
         # returns count of the entries
         # this is a magic method allowing using the function len of Python
-        raise NotImplementedError()
-    def setdefault(self, key: K, default: V = None):
-        # TODO: If key missing, insert key: default; return the default.
-        #    If key exists, no insert, no update; return the value
-        raise NotImplementedError()
+        return sum(1 for _ in self.__entries)
     
-    def get(self, key: K, default: V = None):
-        # TODO returns value for key or any default if key missing
+    def setdefault(self, key: K, default: V = None):
+        # If key missing, insert key: default; return the default.
+        # If key exists, no insert, no update; return the value
+        probe: Entry[K, V] = Entry(key, default)
+        if probe in self.__entries:
+            probe = self.__getEntryByKey(key)
+        else:
+            self.__entries.add(probe)
+        return probe.val
+    
+    def get(self, key: K, default: V = None) -> V:
+        # returns value for key or any default if key missing
         # O[LogN] complexity
-        raise NotImplementedError()
+        probe: Entry[K, V] = Entry(key, default)
+        if probe in self.__entries:
+            probe = self.__getEntryByKey(key)
+        return probe.val if probe else default
     
     def items(self) -> list[(K,  V)]:
         # returns list of tuples (key, value)
@@ -146,54 +167,73 @@ class MySortedDict(Generic[K,V]):
        return [(e.key, e.value) for e in self.__entries]
     
     def keys(self) -> list[K]:
-        # TODO returns list of keys
-        raise NotImplementedError()
+        # returns list of keys
+        return [(e.key) for e in self.__entries]
     
     def values(self) -> list[V]:
-        # TODO returns list of values
-        raise NotImplementedError()
+        # returns list of values
+        return [(e.val) for e in self.__entries]
     
     def update(self, key: K, value: V):
         # TODO if key exists, updates value for the key
         # if key missing, inserts key: value entry
-        raise NotImplementedError()
+        self.__setitem__(key, value)
+    
     _sentinel = object()
     def pop(self, key: K, default=_sentinel) -> V:
-        # TODO removes key if the key exists with returning associated value
+        # removes key if the key exists with returning associated value
         # if key missing and default exists, returns default
-        
-        raise NotImplementedError() 
+        res: V = default if default is not self._sentinel else None
+        probe: Entry[K, V] = Entry(key, default)
+        if probe in self.__entries:
+            res = self.__getEntryByKey(key).val
+            self.__entries.discard(probe)
+        else: 
+            if default is self._sentinel:
+                raise KeyError(key)
+        return res 
+
     def bisect_left(self, key:K)->int:
-        # TODO returns first index of key that >= a given key
-        raise NotImplementedError()
+        # returns first index of key that >= a given key
+        probe: Entry[K, V] = Entry(key, None)
+        return self.__entries.bisect_left(probe)
+
     def bisect_right(self, key:K)->int:
-        # TODO returns first index of key that > a given key
-        raise NotImplementedError()
+        # returns first index of key that > a given key
+        probe: Entry[K, V] = Entry(key, None)
+        return self.__entries.bisect_right(probe)
+    
     def peekitem(self, ind: int)->tuple[K,V] :
-        # TODO returns received from Entry tuple at a specified index
-        # may take a negative index with meaning the indexing from the end (index -1 designates the kast key
+        # returns received from Entry tuple at a specified index
+        # may take a negative index with meaning the indexing from the end (index -1 designates the last key
         # raises error for an index out of a possible range (index < -len(self) or index >= len(self))
-        raise NotImplementedError()
+        l: int = len(self.__entries)
+        if ind < -l or ind >= l:
+            raise IndexError(ind)
+        if ind < 0:
+            ind = l + ind
+        e: Entry[K, V] = self.__entries[ind]
+        return (e.key, e.val)
+    
   ####################################################################################
   
 class DictCache(OrderedDict[K, V]) :
     def __init__(self, maxsize=128):
         super().__init__() # calls constructor of OrderedDict that has all methods for keeping insertion order
         self.maxsize = maxsize
-    # TODO     
-    # The  methods __getitem__ and __setitem__ should be overriden
-    # Assumption: only following methods should be overriden for making tests from test_dict_cache.py passed
-    # Hints as follows: 
-    # super().__getitem__(key) calls method __getitem__ of OrderedDict
-    # super().__setitem__(key, value) calls method __setitem__ of OrderedDict
-    # consider using self.move_to_end(key) of OrderedDict for making item with the given key as most recent
-    # consider using self.popitem(last=False) for removing least recent (eldest item)
     
     def __getitem__(self, key):
-        raise NotImplementedError()
+        if key not in self:
+            raise KeyError(key)
+        self.move_to_end(key)
+        return super().__getitem__(key)
 
     def __setitem__(self, key, value):
-        raise NotImplementedError()
+        super().__setitem__(key, value)
+        self.move_to_end(key)
+        if len(self) > self.maxsize:
+            self.popitem(last=False)
+
     
 if __name__ == "__main__":
     aMap: dict[str, int] = dict()
