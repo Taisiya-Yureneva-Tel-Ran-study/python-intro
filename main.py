@@ -164,7 +164,7 @@ class MySortedDict(Generic[K,V]):
         # assume that e is Entry, then to create tuple from Entry e - (e.key, e.value)
         # try to write one code line using so called comprehension expresson
         # [<expression with item> for <item> in <items>] 
-       return [(e.key, e.value) for e in self.__entries]
+       return [(e.key, e.val) for e in self.__entries]
     
     def keys(self) -> list[K]:
         # returns list of keys
@@ -207,11 +207,6 @@ class MySortedDict(Generic[K,V]):
         # returns received from Entry tuple at a specified index
         # may take a negative index with meaning the indexing from the end (index -1 designates the last key
         # raises error for an index out of a possible range (index < -len(self) or index >= len(self))
-        l: int = len(self.__entries)
-        if ind < -l or ind >= l:
-            raise IndexError(ind)
-        if ind < 0:
-            ind = l + ind
         e: Entry[K, V] = self.__entries[ind]
         return (e.key, e.val)
     
