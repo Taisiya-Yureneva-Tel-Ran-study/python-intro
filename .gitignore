@@ -2,3 +2,5 @@
 __pycache__/
 __pycache__/main.cpython-313.pyc
 __pycache__/test_main.cpython-313.pyc
+.vscode/
+*.pyc
